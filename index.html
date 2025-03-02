@@ -42,6 +42,17 @@
             position: relative;
             pointer-events: auto;
         }
+        
+        /* Improved fade transitions */
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        
+        .fade-in {
+            opacity: 1;
+            transition: opacity 1.5s ease-in-out;
+        }
 
         .button-container {
             margin-top: 20px;
@@ -105,6 +116,21 @@
             width: 80%;
             max-width: 500px;
             margin: 0 auto;
+            /* Add animation for the paper appearance */
+            transform-origin: center;
+            animation: paperAppear 1.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        @keyframes paperAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) rotate(-5deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
         }
 
         .balloon-wrapper {
@@ -183,11 +209,37 @@
             display: none;
             margin-top: 20px;
             font-size: 3rem;
+            animation: cakeAppear 2s ease-out forwards;
+            opacity: 0;
+        }
+        
+        @keyframes cakeAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         #countdown {
             font-size: 5rem;
             color: #ff4d8c;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
         
         #balloon-container {
@@ -216,12 +268,13 @@
             animation: pulse 1.5s infinite;
             display: none;
             margin: 0 auto;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 1s forwards;
         }
         
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .scroll-container {
@@ -440,18 +493,27 @@
             }
         });
 
-        // Handle "I love youuu too" button click
+        // Handle "I love youuu too" button click with smoother transitions
         loveButton.addEventListener("click", () => {
             transition(3, 4); // Show "Hehe I know" message
             
-            // Wait a bit and then move to countdown
+            // Wait and then smoothly transition to countdown
             setTimeout(() => {
-                transition(4, 5); // Go to countdown stage
-                startCountdown();
-            }, 3000);
+                // Start fading out "Hehe I know"
+                stages[4].classList.add("fade-out");
+                
+                setTimeout(() => {
+                    transition(4, 5); // Go to countdown stage
+                    
+                    // Give a moment for the countdown to be visible before starting
+                    setTimeout(() => {
+                        startCountdown();
+                    }, 300);
+                }, 1000);
+            }, 2000);
         });
 
-        // Fixed countdown function
+        // Improved countdown function with smoother transitions
         let countdownIndex = 0;
         const countdownValues = [3, 2, 1];
         
@@ -467,18 +529,48 @@
                 countdownIndex++;
                 
                 if (countdownIndex < countdownValues.length) {
-                    // Update countdown text
-                    countdown.textContent = countdownValues[countdownIndex];
+                    // Fade out transition for numbers
+                    countdown.style.opacity = "0";
+                    
+                    setTimeout(() => {
+                        // Update countdown text
+                        countdown.textContent = countdownValues[countdownIndex];
+                        countdown.style.opacity = "1";
+                    }, 300);
+                    
                 } else {
                     // Stop interval when done
                     clearInterval(countdownInterval);
                     
-                    // Move to birthday message and start balloon animation
-                    transition(5, 6); // Go to birthday message
+                    // Fade out countdown
+                    countdown.style.opacity = "0";
+                    stages[5].classList.add("fade-out");
+                    
                     setTimeout(() => {
-                        transition(6, 7); // Go to balloons and cake
-                        launchBalloons();
-                    }, 2000);
+                        // Smoothly transition to birthday message with animation
+                        transition(5, 6);
+                        
+                        // Wait for message to be fully visible, then start balloon animation
+                        setTimeout(() => {
+                            // Start gradually fading out the birthday message
+                            stages[6].classList.add("fade-out");
+                            
+                            setTimeout(() => {
+                                // Transition to balloons and cake
+                                transition(6, 7);
+                                launchBalloons();
+                                
+                                // Make the cake visible with animation
+                                setTimeout(() => {
+                                    cake.style.display = "block";
+                                    // Show the read letter button after the cake appears
+                                    setTimeout(() => {
+                                        readLetterButton.style.display = "block";
+                                    }, 1500);
+                                }, 1000);
+                            }, 1500);
+                        }, 3000);
+                    }, 600);
                 }
             }, 1000);
         }
@@ -546,14 +638,6 @@
                 // Add the balloon wrapper to the container
                 balloonContainer.appendChild(balloonWrapper);
             }
-            
-            setTimeout(() => {
-                cake.style.display = "block";
-                // Show the read letter button after the cake appears
-                setTimeout(() => {
-                    readLetterButton.style.display = "block";
-                }, 1500);
-            }, 1000);
         }
 
         // Handle read letter button click
@@ -585,6 +669,7 @@
             }, 500);
         });
 
+        // Improved transition function with fade effects
         function transition(from, to) {
             // First make the current stage hidden
             stages[from].classList.remove("visible");
