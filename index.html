@@ -165,25 +165,50 @@
             z-index: 2;
         }
 
+        /* Improved slithering string style */
         .string {
-            width: 1.5px;
+            position: relative;
             height: 100px;
-            background: rgba(255, 255, 255, 0.7);
-            margin-top: -2px;
+            width: 1.5px;
+            background: transparent;
             z-index: 1;
-            transform-origin: top center;
-            animation: sway 3s ease-in-out infinite alternate;
+            overflow: visible;
+        }
+        
+        /* String path that creates the slithering S-shape */
+        .string-path {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            animation: slither 4s ease-in-out infinite alternate;
+        }
+        
+        /* The actual visible string segments for S shape */
+        .string-segment {
+            position: absolute;
+            width: 1.5px;
+            height: 10px; /* Short segments to create curve */
+            background: rgba(255, 255, 255, 0.7);
+            transform-origin: center top;
         }
 
-        @keyframes sway {
+        @keyframes slither {
             0% {
-                transform: rotate(10deg);
+                transform: translateX(-3px) scaleY(1.03);
+            }
+            25% {
+                transform: translateX(2px) scaleY(0.97);
             }
             50% {
-                transform: rotate(0deg);
+                transform: translateX(-2px) scaleY(1.05);
+            }
+            75% {
+                transform: translateX(3px) scaleY(0.95);
             }
             100% {
-                transform: rotate(-10deg);
+                transform: translateX(-4px) scaleY(1.04);
             }
         }
 
@@ -575,7 +600,7 @@
             }, 1000);
         }
 
-        // Improved balloons animation with properly attached strings
+        // Improved balloons animation with slithering S-shaped strings
         function launchBalloons() {
             // Clear any existing balloons
             balloonContainer.innerHTML = '';
@@ -611,20 +636,49 @@
                 balloon.style.width = size + "px";
                 balloon.style.height = (size * 1.25) + "px";
                 
-                // Create the string
+                // Create improved string with slithering effect
                 const string = document.createElement("div");
                 string.classList.add("string");
                 
-                // Make strings of different lengths
-                string.style.height = (80 + Math.random() * 40) + "px";
+                // Set string height
+                const stringHeight = 80 + Math.random() * 40;
+                string.style.height = stringHeight + "px";
                 
-                // Create unique sway animation for each string
-                const swayDuration = 2 + Math.random() * 3;
-                const swayDelay = Math.random() * 2;
-                string.style.animationDuration = swayDuration + "s";
-                string.style.animationDelay = swayDelay + "s";
+                // Create string path container for the animation
+                const stringPath = document.createElement("div");
+                stringPath.classList.add("string-path");
                 
-                // Append elements to wrapper - balloon first, then string
+                // Create individual string segments to form the S-shape
+                const segmentCount = 15; // Number of segments to create the curve
+                const segmentHeight = stringHeight / segmentCount;
+                
+                for (let j = 0; j < segmentCount; j++) {
+                    const segment = document.createElement("div");
+                    segment.classList.add("string-segment");
+                    segment.style.height = segmentHeight + "px";
+                    segment.style.top = (j * segmentHeight) + "px";
+                    
+                    // Add slight horizontal offset to create S-curve effect
+                    // Sine wave pattern for horizontal position
+                    const waveAmplitude = 2 + Math.random() * 1.5; // Vary the curve intensity
+                    const horizontalOffset = Math.sin((j / segmentCount) * Math.PI * 2) * waveAmplitude;
+                    segment.style.left = horizontalOffset + "px";
+                    
+                    // Add varying animation delay for more natural movement
+                    segment.style.animationDelay = (Math.random() * 0.5) + "s";
+                    
+                    // Add to string path
+                    stringPath.appendChild(segment);
+                }
+                
+                // Add unique animation timing
+                stringPath.style.animationDuration = (3 + Math.random() * 2) + "s";
+                stringPath.style.animationDelay = (Math.random() * 1.5) + "s";
+                
+                // Append string path to string
+                string.appendChild(stringPath);
+                
+                // Append elements to wrapper
                 balloonWrapper.appendChild(balloon);
                 balloonWrapper.appendChild(string);
                 
