@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+            font-family: "Times New Roman", serif;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .message-container {
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        .hidden {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .visible {
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+            position: relative;
+            pointer-events: auto;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        button {
+            background-color: white;
+            color: black;
+            font-family: inherit;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        #yes-button {
+            background-color: #ff4d8c;
+            color: white;
+        }
+
+        #no-button {
+            position: relative;
+            background-color: #cccccc;
+        }
+
+        #love-button {
+            background-color: #ff4d8c;
+            color: white;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        #hate-button {
+            background-color: #cccccc;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+        .letter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .paper {
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: "Times New Roman", serif;
+            font-size: 2rem;
+            width: 80%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .balloon-wrapper {
+            position: absolute;
+            bottom: -100px;
+            animation: floatUp 10s ease-in infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .balloon {
+            width: 40px;
+            height: 50px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+            position: relative;
+        }
+
+        /* Bottom knot of balloon */
+        .balloon:after {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: inherit;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .string {
+            width: 1.5px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.7);
+            margin-top: -2px;
+            z-index: 1;
+            transform-origin: top center;
+            animation: sway 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0% {
+                transform: rotate(10deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(-10deg);
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-30vh) rotate(5deg);
+            }
+            50% {
+                transform: translateY(-60vh) rotate(-5deg);
+            }
+            75% {
+                transform: translateY(-90vh) rotate(5deg);
+            }
+            100% {
+                transform: translateY(-120vh) rotate(0deg);
+            }
+        }
+
+        .cake {
+            display: none;
+            margin-top: 20px;
+            font-size: 3rem;
+        }
+
+        #countdown {
+            font-size: 5rem;
+            color: #ff4d8c;
+        }
+        
+        #balloon-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* New styles for Read Letter button and scroll animation */
+        .read-letter-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        #read-letter-button {
+            background-color: #ff4d8c;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.8rem;
+            animation: pulse 1.5s infinite;
+            display: none;
+            margin: 0 auto;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .scroll-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+        
+        .scroll {
+            background-color: #f9ecd2;
+            color: #472c1b;
+            font-family: 'Brush Script MT', cursive;
+            width: 80%;
+            max-width: 600px;
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px 10px 10px 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            position: relative;
+            transition: height 2s ease;
+            padding: 0 20px;
+            font-size: 1.5rem;
+            line-height: 1.5;
+            font-weight: normal;
+            text-align: left;
+        }
+        
+        .scroll-content {
+            padding: 40px 20px;
+            opacity: 0;
+            transition: opacity 1s ease 1s;
+        }
+        
+        .scroll-open {
+            height: 70vh;
+        }
+        
+        .scroll-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .scroll-content-visible {
+            opacity: 1;
+        }
+        
+        .close-scroll {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            color: #472c1b;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .signature {
+            font-size: 1.8rem;
+            margin-top: 30px;
+            text-align: right;
+            font-style: italic;
+        }
+        
+        .letter-text {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="message-container">
+        <div id="stage1" class="visible">I am really sorry for being late to gift you</div>
+        <div id="stage2" class="hidden">But you know who loves you right?</div>
+        <div id="stage3" class="hidden button-container">
+            <button id="yes-button">Yes</button>
+            <button id="no-button">No</button>
+        </div>
+        <div id="stage4" class="hidden">
+            <div>Yes!! You're right, it's me!! I love you trillions loulou!</div>
+            <div class="button-container" id="love-buttons">
+                <button id="love-button">I love youuu too</button>
+                <button id="hate-button">I don't love you</button>
+            </div>
+        </div>
+        <div id="stage4-5" class="hidden">
+            <div>Hehe I know 😊</div>
+        </div>
+        <div id="stage6" class="hidden">
+            <div id="countdown">3</div>
+        </div>
+        <div id="stage5" class="hidden letter">
+            <div class="paper" id="message">HAPPY BIRTHDAY SMURFETTE</div>
+        </div>
+        <div id="stage7" class="hidden">
+            <div id="balloon-container"></div>
+            <div class="cake">
+                🎂 Happy Birthday! 🎉
+            </div>
+            <div class="read-letter-container">
+                <button id="read-letter-button">Read Letter</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="balloon-container"></div>
+    
+    <!-- New scroll letter container -->
+    <div class="scroll-container" id="scroll-container">
+        <div class="scroll" id="scroll">
+            <button class="close-scroll" id="close-scroll">✕</button>
+            <div class="scroll-content" id="scroll-content">
+                <div class="letter-text">
+                    Dear Lina,
+                </div>
+                <div class="letter-text">
+                    You have no idea how much you mean to me and how amazing you truly are. I admire everything about you. You drive me to go and achieve things I want to.
+                </div>
+                <div class="letter-text">
+                    Thanks for being both my inspiration and strength.
+                </div>
+                <div class="letter-text">
+                    Happy birthday, I wish and hope many many more returns of this day.
+                </div>
+                <div class="signature">
+                    With love ❤️
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stages = [
+            document.getElementById("stage1"),
+            document.getElementById("stage2"),
+            document.getElementById("stage3"),
+            document.getElementById("stage4"),
+            document.getElementById("stage4-5"),
+            document.getElementById("stage6"),  // Countdown stage
+            document.getElementById("stage5"),  // Birthday message
+            document.getElementById("stage7")   // Balloons and cake
+        ];
+
+        const yesButton = document.getElementById("yes-button");
+        const noButton = document.getElementById("no-button");
+        const loveButton = document.getElementById("love-button");
+        const hateButton = document.getElementById("hate-button");
+        const message = document.getElementById("message");
+        const countdown = document.getElementById("countdown");
+        const balloonContainer = document.getElementById("balloon-container");
+        const cake = document.querySelector(".cake");
+        const readLetterButton = document.getElementById("read-letter-button");
+        const scrollContainer = document.getElementById("scroll-container");
+        const scroll = document.getElementById("scroll");
+        const scrollContent = document.getElementById("scroll-content");
+        const closeScroll = document.getElementById("close-scroll");
+
+        // Transition stages
+        document.getElementById("stage1").addEventListener("click", () => {
+            transition(0, 1);
+        });
+
+        document.getElementById("stage2").addEventListener("click", () => {
+            transition(1, 2);
+        });
+
+        // Handle the "No" button movement - make it run away
+        noButton.addEventListener("mouseover", () => {
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Keep button within viewport bounds
+            const maxLeft = viewportWidth - 150;
+            const maxTop = viewportHeight - 50;
+            
+            const randomX = Math.random() * maxLeft;
+            const randomY = Math.random() * maxTop;
+            
+            noButton.style.position = "fixed";
+            noButton.style.top = randomY + "px";
+            noButton.style.left = randomX + "px";
+        });
+
+        // Fix for the "Yes" button
+        yesButton.addEventListener("click", () => {
+            transition(2, 3);
+        });
+
+        // Love button growth variables
+        let loveButtonSize = 1;
+        const maxGrowth = 5; // Maximum growth multiplier
+        
+        // Handle "I don't love you" button click
+        hateButton.addEventListener("click", () => {
+            // Increase the size of the love button
+            loveButtonSize = Math.min(loveButtonSize + 0.5, maxGrowth);
+            
+            // Apply the new size to the love button
+            loveButton.style.transform = `scale(${loveButtonSize})`;
+            loveButton.style.zIndex = "10";
+            
+            // If we've reached max growth, hide the hate button
+            if (loveButtonSize >= maxGrowth) {
+                hateButton.style.opacity = "0";
+                hateButton.style.pointerEvents = "none";
+            }
+        });
+
+        // Handle "I love youuu too" button click
+        loveButton.addEventListener("click", () => {
+            transition(3, 4); // Show "Hehe I know" message
+            
+            // Wait a bit and then move to countdown
+            setTimeout(() => {
+                transition(4, 5); // Go to countdown stage
+                startCountdown();
+            }, 3000);
+        });
+
+        // Fixed countdown function
+        let countdownIndex = 0;
+        const countdownValues = [3, 2, 1];
+        
+        function startCountdown() {
+            // Reset the countdown index
+            countdownIndex = 0;
+            
+            // Set initial countdown value
+            countdown.textContent = countdownValues[countdownIndex];
+            
+            // Use interval for countdown
+            const countdownInterval = setInterval(() => {
+                countdownIndex++;
+                
+                if (countdownIndex < countdownValues.length) {
+                    // Update countdown text
+                    countdown.textContent = countdownValues[countdownIndex];
+                } else {
+                    // Stop interval when done
+                    clearInterval(countdownInterval);
+                    
+                    // Move to birthday message and start balloon animation
+                    transition(5, 6); // Go to birthday message
+                    setTimeout(() => {
+                        transition(6, 7); // Go to balloons and cake
+                        launchBalloons();
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        // Improved balloons animation with properly attached strings
+        function launchBalloons() {
+            // Clear any existing balloons
+            balloonContainer.innerHTML = '';
+            
+            const balloonColors = [
+                { bg: "#ff4d8c", shine: "#ff9ebf" },  // Pink
+                { bg: "#4dc3ff", shine: "#a8e1ff" },  // Blue
+                { bg: "#4dff62", shine: "#a8ffb5" },  // Green
+                { bg: "#ffdd4d", shine: "#ffeca8" },  // Yellow
+                { bg: "#ff7b4d", shine: "#ffbda8" },  // Orange
+                { bg: "#cb4dff", shine: "#e5a8ff" },  // Purple
+                { bg: "#ff4d4d", shine: "#ffa8a8" }   // Red
+            ];
+            
+            for (let i = 0; i < 30; i++) {
+                // Create a wrapper for the balloon and string
+                const balloonWrapper = document.createElement("div");
+                balloonWrapper.classList.add("balloon-wrapper");
+                
+                // Create the balloon
+                const balloon = document.createElement("div");
+                balloon.classList.add("balloon");
+                
+                // Select a random color from our palette
+                const colorIndex = Math.floor(Math.random() * balloonColors.length);
+                const balloonColor = balloonColors[colorIndex];
+                
+                balloon.style.backgroundColor = balloonColor.bg;
+                balloon.style.background = `radial-gradient(circle at 20% 30%, ${balloonColor.shine}, ${balloonColor.bg})`;
+                
+                // Vary the size
+                const size = 30 + Math.random() * 30;
+                balloon.style.width = size + "px";
+                balloon.style.height = (size * 1.25) + "px";
+                
+                // Create the string
+                const string = document.createElement("div");
+                string.classList.add("string");
+                
+                // Make strings of different lengths
+                string.style.height = (80 + Math.random() * 40) + "px";
+                
+                // Create unique sway animation for each string
+                const swayDuration = 2 + Math.random() * 3;
+                const swayDelay = Math.random() * 2;
+                string.style.animationDuration = swayDuration + "s";
+                string.style.animationDelay = swayDelay + "s";
+                
+                // Append elements to wrapper - balloon first, then string
+                balloonWrapper.appendChild(balloon);
+                balloonWrapper.appendChild(string);
+                
+                // Set balloon position
+                balloonWrapper.style.left = Math.random() * 100 + "vw";
+                
+                // Add animation delay for better visual effect
+                balloonWrapper.style.animationDelay = (Math.random() * 3) + "s";
+                balloonWrapper.style.animationDuration = (8 + Math.random() * 7) + "s";
+                
+                // Add the balloon wrapper to the container
+                balloonContainer.appendChild(balloonWrapper);
+            }
+            
+            setTimeout(() => {
+                cake.style.display = "block";
+                // Show the read letter button after the cake appears
+                setTimeout(() => {
+                    readLetterButton.style.display = "block";
+                }, 1500);
+            }, 1000);
+        }
+
+        // Handle read letter button click
+        readLetterButton.addEventListener("click", () => {
+            // Show the scroll container
+            scrollContainer.classList.add("scroll-visible");
+            
+            // Animate the scroll opening after a short delay
+            setTimeout(() => {
+                scroll.classList.add("scroll-open");
+                
+                // Show the content inside with a delay
+                setTimeout(() => {
+                    scrollContent.classList.add("scroll-content-visible");
+                }, 1000);
+            }, 300);
+        });
+        
+        // Handle close scroll button click
+        closeScroll.addEventListener("click", () => {
+            scrollContent.classList.remove("scroll-content-visible");
+            
+            setTimeout(() => {
+                scroll.classList.remove("scroll-open");
+                
+                setTimeout(() => {
+                    scrollContainer.classList.remove("scroll-visible");
+                }, 1000);
+            }, 500);
+        });
+
+        function transition(from, to) {
+            // First make the current stage hidden
+            stages[from].classList.remove("visible");
+            stages[from].classList.add("hidden");
+            
+            // Then make the next stage visible
+            stages[to].classList.remove("hidden");
+            stages[to].classList.add("visible");
+        }
+    </script>
+</body>
+</html>
